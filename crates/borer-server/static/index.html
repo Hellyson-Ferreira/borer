@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>borer</title>
+
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --fg: #e6e6e6;
+            --muted: #8b949e;
+            --accent: #f97316;
+            --border: #1f2933;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(
+                    1200px 600px at top,
+                    #0f141a,
+                    var(--bg)
+            );
+            color: var(--fg);
+            font-family: var(--mono);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            padding: 3rem 2rem;
+            border: 1px solid var(--border);
+            background: rgba(11, 13, 16, 0.85);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.02),
+            0 40px 80px rgba(0,0,0,0.6);
+        }
+
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 2.4rem;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .box {
+            margin-top: 2rem;
+            padding: 1.2rem 1.4rem;
+            border: 1px dashed var(--border);
+            background: rgba(0,0,0,0.35);
+        }
+
+        .box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #cbd5e1;
+        }
+
+        footer {
+            margin-top: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Borer</h1>
+    <div class="tagline">Drill through NATs. Own your tunnels.</div>
+
+    <p>
+        <strong>Borer</strong> is a self-hosted tunneling system.
+        It exposes local services to the internet by drilling through NATs and
+        firewalls using persistent tunnels.
+    </p>
+
+    <p>
+        The server does not execute requests. All traffic is forwarded to a local
+        agent, keeping your infrastructure minimal and your services private.
+    </p>
+
+    <div class="box">
+      <pre>
+$ borer up 3000
+→ https://your-service.borer.dev
+      </pre>
+    </div>
+
+    <footer>
+        <div class="status">
+            <span class="dot"></span>
+            tunnel server online
+        </div>
+
+        <div>
+            <a href="https://github.com/Hellyson-Ferreira/borer" target="_blank">
+                documentation
+            </a>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

@@ -4,13 +4,12 @@ mod server;
 mod session;
 mod state;
 
-use crate::router::{proxy, ws_handler};
+use crate::router::{index, proxy, ws_handler};
 use crate::state::AppState;
 use axum::Router;
 use axum::routing::{any, get};
 use std::collections::HashMap;
 use std::sync::Arc;
-
 use tokio::sync::Mutex;
 
 #[tokio::main]
@@ -21,6 +20,7 @@ async fn main() {
     };
 
     let app = Router::new()
+        .route("/", get(index))
         .route("/ws", get(ws_handler))
         .route("/proxy/{*path}", any(proxy))
         .route("/proxy", any(proxy))

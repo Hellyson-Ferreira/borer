@@ -3,7 +3,7 @@ use std::time::Duration;
 use axum::extract::ws::{Message, WebSocket};
 use axum::extract::{OriginalUri, State, WebSocketUpgrade};
 use axum::http::{HeaderMap, Method, Response, StatusCode};
-use axum::response::IntoResponse;
+use axum::response::{Html, IntoResponse};
 use borer_core::protocol::{TunnelHttpRequest, TunnelMessage};
 use futures::{SinkExt, StreamExt};
 use uuid::Uuid;
@@ -145,4 +145,9 @@ async fn handle_ws(socket: WebSocket, state: AppState) {
 
     let mut guard = state.ws.lock().await;
     *guard = None;
+}
+
+
+pub async fn index() -> Html<&'static str> {
+   Html(include_str!("../static/index.html"))
 }
