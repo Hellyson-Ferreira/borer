@@ -1,0 +1,13 @@
+services:
+  borer-server:
+    image: hellysonf/borer-server:latest
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    container_name: borer-server
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
+
