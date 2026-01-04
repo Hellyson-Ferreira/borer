@@ -1,23 +1,54 @@
-🪲 Borer
+# 🪲 Borer
 
-borer is a self-hosted tunneling system
+**borer** is a self-hosted tunneling prototype.
 
-It allows you to securely expose local services to the internet using persistent tunnels. Instead of running a public proxy that executes requests, borer delegates all request execution to a local agent, keeping your infrastructure minimal and your services private.
+It implements a minimal tunneling system where a server forwards incoming HTTP requests through a persistent WebSocket connection to a local agent. The local agent executes the request and sends the response back through the tunnel.
 
-borer is designed as a transport-agnostic tunneling core, with HTTP implemented as just one of its operating modes. TLS termination, domains, and certificates are handled externally (e.g. via Caddy), allowing borer to focus strictly on reliable, low-level traffic forwarding.
+The server never executes user requests. Its only responsibility is routing and forwarding traffic to the correct connected client.
 
-Key ideas
+---
 
-Self-hosted alternative to ngrok
+## What works today
 
-Local agent executes all requests
+- Persistent WebSocket connection between server and client
+- HTTP request forwarding over the WebSocket tunnel
+- Request/response correlation using request IDs
+- Concurrent HTTP requests supported
+- Local agent executes all upstream requests
+- Server acts only as a tunnel broker
 
-Server acts only as a tunnel broker
+---
 
-WebSocket-based transport (for now)
+## What this project is
 
-Protocol-first design, transport-agnostic by default
+- A **working prototype**
+- A **proof of concept** for a self-hosted tunneling system
+- A **foundation** for future routing and tunneling features
 
-Status
+This project is **not production-ready**.
 
-🚧 Work in progress — early prototyping stage.
+---
+
+## Planned work
+
+- [ ] Turn the client into a proper CLI tool
+- [ ] Add authentication between server and client
+- [ ] Add client registration and routing
+- [ ] Route requests based on subdomains (`Host` header)
+- [ ] Add support for proxying WebSocket connections
+- [ ] Improve error handling and timeouts
+- [ ] Clean and normalize HTTP headers
+- [ ] Support streaming request and response bodies
+- [ ] Support multiple clients per server
+- [ ] Add TCP tunneling mode (non-HTTP)
+- [ ] Replace JSON with a binary protocol
+- [ ] Add basic observability (logs and metrics)
+
+---
+
+## Status
+
+🚧 Prototype — active development.
+
+---
+
