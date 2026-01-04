@@ -1,9 +1,7 @@
-use crate::state::{PendingRequests, SharedWs};
 use axum::body::Body;
 use std::time::Duration;
-// use axum::body::Bytes;
 use axum::extract::ws::{Message, WebSocket};
-use axum::extract::{OriginalUri, Path, State, WebSocketUpgrade};
+use axum::extract::{OriginalUri, State, WebSocketUpgrade};
 use axum::http::{HeaderMap, Method, Response, StatusCode};
 use axum::response::IntoResponse;
 use borer_core::protocol::{TunnelHttpRequest, TunnelMessage};
@@ -65,18 +63,18 @@ pub async fn proxy(
             let mut guard = state.ws.lock().await;
             *guard = sender;
         } else {
-            cleanup_pending(&state.pending, &id).await;
+            state.cleanup_pending(&id).await;
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }
     } else {
-        cleanup_pending(&state.pending, &id).await;
+        state.cleanup_pending(&id).await;
         return StatusCode::SERVICE_UNAVAILABLE.into_response();
     }
 
     let resp = match timeout(Duration::from_secs(30), rx).await {
         Ok(Ok(resp)) => resp,
         _ => {
-            cleanup_pending(&state.pending, &id).await;
+            state.cleanup_pending(&id).await;
             return StatusCode::GATEWAY_TIMEOUT.into_response();
         }
     };
@@ -147,8 +145,4 @@ async fn handle_ws(socket: WebSocket, state: AppState) {
 
     let mut guard = state.ws.lock().await;
     *guard = None;
-}
-async fn cleanup_pending(pending: &PendingRequests, id: &str) {
-    let mut map = pending.lock().await;
-    map.remove(id);
 }

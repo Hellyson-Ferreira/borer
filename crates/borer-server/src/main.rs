@@ -5,7 +5,7 @@ mod session;
 mod state;
 
 use crate::router::{proxy, ws_handler};
-use crate::state::{AppState, PendingRequests, SharedWs};
+use crate::state::AppState;
 use axum::Router;
 use axum::routing::{any, get};
 use std::collections::HashMap;

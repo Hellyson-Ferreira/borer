@@ -13,3 +13,10 @@ pub struct AppState {
     pub ws: SharedWs,
     pub pending: PendingRequests,
 }
+
+impl AppState {
+    pub(crate) async fn cleanup_pending(&self, id: &str) {
+        let mut map = self.pending.lock().await;
+        map.remove(id);
+    }
+}
