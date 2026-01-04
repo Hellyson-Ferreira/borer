@@ -8,3 +8,4 @@ tokio = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+uuid = { version = "1.19.0", features = ["v4"] }

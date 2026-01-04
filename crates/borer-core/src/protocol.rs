@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TunnelHttpRequest {
+    pub id: String,
     pub method: String,
     pub path: String,
     pub query: Option<String>,
@@ -12,6 +13,7 @@ pub struct TunnelHttpRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TunnelHttpResponse {
+    pub id: String,
     pub status: u16,
     pub headers: Vec<(String, String)>,
     pub body: Vec<u8>,
