@@ -14,3 +14,4 @@ tungstenite = "0.28.0"
 url = "2.5.7"
 reqwest = "0.13.1"
 anyhow = "1.0.100"
+clap = { version = "4.5.54", features = ["derive"] }

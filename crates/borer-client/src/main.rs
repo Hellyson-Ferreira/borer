@@ -1,11 +1,25 @@
-mod tunnel;
-mod proxy;
-mod cli;
+use crate::cli::Cli;
+use crate::cli::Commands::{Login, Logout, Up};
+use clap::Parser;
+
 mod agent;
+mod cli;
+mod proxy;
+mod tunnel;
 
 #[tokio::main]
 async fn main() {
-    tunnel::run("ws://localhost:3002/ws", "http://localhost:3001")
-        .await
-        .unwrap();
+    let args = Cli::parse();
+
+    match args.command {
+        Up(args) => {
+            agent::run_agent(args.local_port).await;
+        }
+        Login(args) => {
+            proxy::run_login(args.token, args.remote_path).await;
+        }
+        Logout => {
+            println!("Logging out...");
+        }
+    }
 }
