@@ -31,7 +31,7 @@ This project is **not production-ready**.
 
 ## Planned work
 
-- [ ] Turn the client into a proper CLI tool
+- [x] Turn the client into a proper CLI tool
 - [ ] Add authentication between server and client
 - [ ] Add client registration and routing
 - [ ] Route requests based on subdomains (`Host` header)

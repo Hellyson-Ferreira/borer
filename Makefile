@@ -1,5 +1,9 @@
-IMAGE_NAME = hellysonf/borer-server
+IMAGE_NAME := hellysonf/borer-server
 TAG ?= latest
+
+# -----------------------
+# Docker
+# -----------------------
 
 build:
 	docker compose build
@@ -15,5 +19,28 @@ run:
 stop:
 	docker compose down
 
-.PHONY: build push build-push run stop
+# -----------------------
+# Cargo (local dev)
+# -----------------------
 
+borer-server:
+	cargo run --bin borerd
+
+borer-client-up:
+	cargo run --bin borer -- up 3001
+
+borer-client-logout:
+	cargo run --bin borer -- logout
+
+# -----------------------
+# Utils
+# -----------------------
+
+logs:
+	docker compose logs -f
+
+restart: stop run
+
+.PHONY: \
+	build push build-push run stop restart logs \
+	borer-server borer-client-up borer-client-logout

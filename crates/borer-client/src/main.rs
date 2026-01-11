@@ -4,6 +4,7 @@ use clap::Parser;
 
 mod agent;
 mod cli;
+mod config;
 mod proxy;
 mod tunnel;
 
@@ -19,7 +20,7 @@ async fn main() {
             proxy::run_login(args.token, args.remote_path).await;
         }
         Logout => {
-            println!("Logging out...");
+            proxy::run_logout().await;
         }
     }
 }

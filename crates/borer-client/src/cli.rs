@@ -16,6 +16,7 @@ pub struct LoginArgs {
 #[derive(Args, Debug)]
 pub struct UpArgs {
     pub local_port: u16,
+    pub url: Option<String>,
 }
 
 #[derive(Parser, Debug)]

@@ -63,7 +63,13 @@ async fn handle_http_request(
     result
 }
 
-pub async fn run(ws_url: &str, local_base: &str) -> anyhow::Result<()> {
+pub async fn run(ws_url: &str, token: &str, local_base: &str) -> anyhow::Result<()> {
+    // TODO: change this to headers for better security
+    // TODO: add support ws when in development mode
+    let ws_url = format!("ws://{}/ws?token={}", ws_url, token);
+
+    println!("Connecting to {}", ws_url);
+
     let (ws, _) = connect_async(ws_url).await?;
     println!("Connected to server");
 
