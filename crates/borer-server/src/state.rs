@@ -1,3 +1,4 @@
+use crate::auth::service::AuthService;
 use axum::extract::ws::{Message, WebSocket};
 use borer_core::protocol::TunnelHttpResponse;
 use futures::stream::SplitSink;
@@ -12,6 +13,7 @@ pub type PendingRequests = Arc<Mutex<HashMap<String, oneshot::Sender<TunnelHttpR
 pub struct AppState {
     pub ws: SharedWs,
     pub pending: PendingRequests,
+    pub auth: AuthService,
 }
 
 impl AppState {
