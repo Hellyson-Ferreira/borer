@@ -36,6 +36,12 @@ borer-client-logout:
 # Utils
 # -----------------------
 
+run-migrations:
+	cd crates/borer-server && set -a && source .env && sqlx migrate run
+
+docker-migrations:
+	docker compose up migrations --build
+
 logs:
 	docker compose logs -f
 
@@ -43,4 +49,5 @@ restart: stop run
 
 .PHONY: \
 	build push build-push run stop restart logs \
-	borer-server borer-client-up borer-client-logout
+	borer-server borer-client-up borer-client-logout \
+	run-migrations docker-migrations

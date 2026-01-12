@@ -8,6 +8,45 @@ services:
     ports:
       - "3002:3002"
     restart: unless-stopped
+    env_file:
+      - crates/borer-server/.env
     environment:
       - RUST_LOG=info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+  migrations:
+    image: hellysonf/borer-migrations:latest
+    build:
+      context: .
+      dockerfile: docker/migrations.Dockerfile
+    container_name: borer-migrations
+    environment:
+      DATABASE_URL: postgres://borer:borer@postgres:5432/borer
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: borer-postgres
+    environment:
+      POSTGRES_USER: borer
+      POSTGRES_PASSWORD: borer
+      POSTGRES_DB: borer
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U borer -d borer"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
 
