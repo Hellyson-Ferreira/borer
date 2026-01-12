@@ -1,17 +1,16 @@
+use crate::state::AppState;
 use axum::body::Body;
-use std::time::Duration;
-use axum::extract::ws::{Message, WebSocket};
-use axum::extract::{OriginalUri, State, WebSocketUpgrade};
+use axum::extract::ws::Message;
+use axum::extract::{OriginalUri, State};
 use axum::http::{HeaderMap, Method, Response, StatusCode};
 use axum::response::{Html, IntoResponse};
 use borer_core::protocol::{TunnelHttpRequest, TunnelMessage};
-use futures::{SinkExt, StreamExt};
-use uuid::Uuid;
-
-use crate::AppState;
 use bytes::Bytes;
+use futures::SinkExt;
+use std::time::Duration;
 use tokio::sync::oneshot;
 use tokio::time::timeout;
+use uuid::Uuid;
 
 pub async fn proxy(
     State(state): State<AppState>,
@@ -90,64 +89,6 @@ pub async fn proxy(
         .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
 }
 
-pub(crate) async fn ws_handler(
-    ws: WebSocketUpgrade,
-    State(state): State<AppState>,
-) -> impl IntoResponse {
-    ws.on_upgrade(move |socket| handle_ws(socket, state))
-}
-
-async fn handle_ws(socket: WebSocket, state: AppState) {
-    let (sender, mut receiver) = socket.split();
-
-    {
-        let mut guard = state.ws.lock().await;
-        *guard = Some(sender);
-    }
-
-    println!("WebSocket client connected");
-
-    while let Some(msg) = receiver.next().await {
-        match msg {
-            Ok(Message::Binary(bytes)) => {
-                println!("Received binary message: {} bytes", bytes.len());
-
-                match TunnelMessage::from_bytes(&bytes) {
-                    Ok(TunnelMessage::HttpResponse(resp)) => {
-                        println!("SERVER RECEIVED RESPONSE: {}", resp.status);
-
-                        let mut pending = state.pending.lock().await;
-
-                        if let Some(tx) = pending.remove(&resp.id) {
-                            let _ = tx.send(resp);
-                        } else {
-                            println!("No pending request for id: {}", resp.id);
-                        }
-                    }
-                    Ok(other) => {
-                        println!("SERVER RECEIVED OTHER: {:?}", other);
-                    }
-                    Err(e) => {
-                        println!("SERVER INVALID MESSAGE: {e}");
-                    }
-                }
-            }
-            Ok(Message::Close(_)) => break,
-            Ok(_) => {}
-            Err(e) => {
-                eprintln!("WS error: {e}");
-                break;
-            }
-        }
-    }
-
-    println!("WebSocket client disconnected");
-
-    let mut guard = state.ws.lock().await;
-    *guard = None;
-}
-
-
 pub async fn index() -> Html<&'static str> {
-   Html(include_str!("../static/index.html"))
+    Html(include_str!("../../static/index.html"))
 }

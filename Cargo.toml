@@ -4,7 +4,6 @@ members = [
     "crates/borer-core",
     "crates/borer-client",
     "crates/borer-server",
-    "crates/borer-http"
 ]
 
 [workspace.dependencies]
