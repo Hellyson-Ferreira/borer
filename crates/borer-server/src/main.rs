@@ -26,7 +26,7 @@ async fn main() {
         .expect("failed to connect to database");
 
     let state = AppState {
-        ws: Arc::new(Mutex::new(None)),
+        ws_tx: Arc::new(Mutex::new(None)),
         pending: Arc::new(Mutex::new(HashMap::new())),
         auth: auth::service::AuthService::new(pool, config.master_token),
     };

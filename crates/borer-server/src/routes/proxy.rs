@@ -6,7 +6,6 @@ use axum::http::{HeaderMap, Method, Response, StatusCode};
 use axum::response::{Html, IntoResponse};
 use borer_core::protocol::{TunnelHttpRequest, TunnelMessage};
 use bytes::Bytes;
-use futures::SinkExt;
 use std::time::Duration;
 use tokio::sync::oneshot;
 use tokio::time::timeout;
@@ -52,16 +51,13 @@ pub async fn proxy(
         map.insert(id.clone(), tx);
     }
 
-    let mut sender = {
-        let mut guard = state.ws.lock().await;
-        guard.take()
+    let ws_tx = {
+        let guard = state.ws_tx.lock().await;
+        guard.clone()
     };
 
-    if let Some(ref mut ws) = sender {
-        if ws.send(Message::Binary(Bytes::from(bytes))).await.is_ok() {
-            let mut guard = state.ws.lock().await;
-            *guard = sender;
-        } else {
+    if let Some(tx) = ws_tx {
+        if tx.send(Message::Binary(Bytes::from(bytes))).await.is_err() {
             state.cleanup_pending(&id).await;
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }

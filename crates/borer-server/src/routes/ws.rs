@@ -3,7 +3,10 @@ use axum::extract::ws::{Message, WebSocket};
 use axum::extract::{State, WebSocketUpgrade};
 use axum::response::IntoResponse;
 use borer_core::protocol::TunnelMessage;
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
+use tokio::sync::mpsc;
+
+const CHANNEL_BUFFER_SIZE: usize = 256;
 
 pub(crate) async fn ws_handler(
     ws: WebSocketUpgrade,
@@ -13,24 +16,29 @@ pub(crate) async fn ws_handler(
 }
 
 async fn handle_ws(socket: WebSocket, state: AppState) {
-    let (sender, mut receiver) = socket.split();
+    let (mut ws_sink, mut ws_stream) = socket.split();
+    let (tx, mut rx) = mpsc::channel::<Message>(CHANNEL_BUFFER_SIZE);
 
     {
-        let mut guard = state.ws.lock().await;
-        *guard = Some(sender);
+        let mut guard = state.ws_tx.lock().await;
+        *guard = Some(tx);
     }
 
     println!("WebSocket client connected");
 
-    while let Some(msg) = receiver.next().await {
+    let write_task = tokio::spawn(async move {
+        while let Some(msg) = rx.recv().await {
+            if ws_sink.send(msg).await.is_err() {
+                break;
+            }
+        }
+    });
+
+    while let Some(msg) = ws_stream.next().await {
         match msg {
             Ok(Message::Binary(bytes)) => {
-                println!("Received binary message: {} bytes", bytes.len());
-
                 match TunnelMessage::from_bytes(&bytes) {
                     Ok(TunnelMessage::HttpResponse(resp)) => {
-                        println!("SERVER RECEIVED RESPONSE: {}", resp.status);
-
                         let mut pending = state.pending.lock().await;
 
                         if let Some(tx) = pending.remove(&resp.id) {
@@ -40,17 +48,17 @@ async fn handle_ws(socket: WebSocket, state: AppState) {
                         }
                     }
                     Ok(other) => {
-                        println!("SERVER RECEIVED OTHER: {:?}", other);
+                        println!("Unexpected tunnel message: {:?}", other);
                     }
                     Err(e) => {
-                        println!("SERVER INVALID MESSAGE: {e}");
+                        println!("Invalid tunnel message: {e}");
                     }
                 }
             }
             Ok(Message::Close(_)) => break,
             Ok(_) => {}
             Err(e) => {
-                eprintln!("WS error: {e}");
+                eprintln!("WebSocket read error: {e}");
                 break;
             }
         }
@@ -58,6 +66,8 @@ async fn handle_ws(socket: WebSocket, state: AppState) {
 
     println!("WebSocket client disconnected");
 
-    let mut guard = state.ws.lock().await;
+    write_task.abort();
+
+    let mut guard = state.ws_tx.lock().await;
     *guard = None;
 }
